@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAZ Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--pink:#E91E8C;--dark:#1a1a1a;--border:#e5e5e5;--light:#f7f7f7}
+body{font-family:'Inter',sans-serif;background:#f4f4f6;color:var(--dark);font-size:14px}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:#0f0f0f;display:flex;align-items:center;justify-content:center;z-index:999}
+.login-box{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:40px;width:340px}
+.login-logo{display:flex;align-items:baseline;gap:2px;font-size:24px;font-weight:700;margin-bottom:6px}
+.login-logo .s{color:var(--pink);font-size:28px}.login-logo .az{color:#ccc}
+.login-sub{font-size:13px;color:#555;margin-bottom:28px}
+.login-label{font-size:11px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.login-input{width:100%;padding:11px 14px;background:#111;border:1px solid #2a2a2a;border-radius:8px;color:#fff;font-size:14px;font-family:'Inter',sans-serif;margin-bottom:14px;transition:border .2s}
+.login-input:focus{outline:none;border-color:var(--pink)}
+.login-btn{width:100%;background:var(--pink);color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.login-btn:hover{opacity:.85}
+.login-error{font-size:12px;color:#f87171;margin-top:8px;display:none;text-align:center}
+
+/* APP */
+#app{display:none}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-logo{display:flex;align-items:baseline;gap:2px;font-size:17px;font-weight:700}
+.topbar-logo .s{color:var(--pink);font-size:20px}.topbar-logo .az{color:#4a4a4a}
+.topbar-logo .adm{font-size:10px;color:#aaa;margin-left:4px;text-transform:uppercase;letter-spacing:1px}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-outline{background:#fff;border:1px solid var(--border);color:var(--dark)}
+.btn-outline:hover{border-color:#aaa}
+.btn-pink{background:var(--pink);color:#fff}
+.btn-pink:hover{opacity:.85}
+
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 56px)}
+.sidebar{background:#fff;border-right:1px solid var(--border);padding:16px 0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto}
+.sidebar-section{padding:8px 16px;margin-bottom:4px}
+.sidebar-label{font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#555;font-size:13px;font-weight:500;transition:all .15s;user-select:none}
+.nav-item:hover{background:var(--light);color:var(--dark)}
+.nav-item.active{background:#FDE8F3;color:var(--pink)}
+.nav-item .ico{font-size:15px;width:20px;text-align:center}
+
+.main{padding:28px 32px;max-width:780px}
+.page-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.page-sub{font-size:13px;color:#888;margin-bottom:24px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px}
+.card-title{font-size:13px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px;margin-bottom:18px}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:600;color:#888;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.field input,.field textarea,.field select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:var(--dark);background:#fafafa;transition:border .2s}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--pink);background:#fff}
+.field textarea{min-height:80px;resize:vertical}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-hint{font-size:11px;color:#aaa;margin-top:4px}
+
+.img-upload{border:1.5px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa;position:relative}
+.img-upload:hover{border-color:var(--pink);background:#fef0f7}
+.img-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-upload .ico-u{font-size:26px;margin-bottom:8px}
+.img-upload p{font-size:12px;color:#888;line-height:1.6;margin:0}
+.img-upload p strong{color:var(--pink)}
+.img-preview{width:100%;border-radius:8px;object-fit:cover;margin-top:10px;display:none;max-height:160px}
+.img-fname{font-size:11px;color:var(--pink);margin-top:6px;font-weight:500;display:none}
+
+.serv-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;padding:12px;background:#fafafa;border-radius:8px;border:1px solid #f0f0f0}
+.serv-row .snum{font-size:11px;font-weight:700;color:var(--pink);min-width:22px;padding-top:8px;flex-shrink:0}
+.serv-row .sbody{flex:1}
+.serv-row .sname{font-size:11px;font-weight:600;color:#555;margin-bottom:5px}
+.serv-row input{width:100%;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-size:12px;font-family:'Inter',sans-serif;background:#fff;transition:border .2s}
+.serv-row input:focus{outline:none;border-color:var(--pink)}
+
+.client-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.client-grid input{border:1px solid var(--border);border-radius:7px;padding:9px 10px;font-size:12px;font-family:'Inter',sans-serif;background:#fafafa;width:100%;transition:border .2s}
+.client-grid input:focus{outline:none;border-color:var(--pink)}
+
+.page{display:none}.page.active{display:block}
+
+/* PUBLISH */
+.status-bar{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:12px;background:#fff;border:1px solid var(--border);margin-bottom:16px}
+.status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.status-dot.ok{background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.5)}
+.status-dot.pending{background:#f59e0b;box-shadow:0 0 8px rgba(245,158,11,.5)}
+.status-dot.error{background:#ef4444;box-shadow:0 0 8px rgba(239,68,68,.5)}
+.status-text h4{font-size:13px;font-weight:600;margin-bottom:1px}
+.status-text p{font-size:11px;color:#888}
+
+.pub-btn{width:100%;background:var(--pink);color:#fff;border:none;border-radius:10px;padding:15px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.pub-btn:hover{opacity:.88}
+.pub-btn:disabled{opacity:.5;cursor:not-allowed}
+.pub-note{font-size:11px;color:#aaa;text-align:center;margin-top:8px}
+
+/* CONFIGURACION */
+.config-alert{background:#fff8e1;border:1px solid #fde68a;border-radius:10px;padding:16px;margin-bottom:16px;font-size:12px;color:#92400e;line-height:1.6}
+.config-alert strong{color:#78350f}
+.config-step{display:flex;gap:10px;margin-bottom:10px}
+.config-step .cn{background:var(--pink);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+.config-step p{font-size:12px;color:#555;line-height:1.5;margin:0}
+.config-step p code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-size:11px;font-family:monospace;color:var(--pink)}
+.test-result{padding:10px 12px;border-radius:8px;font-size:12px;margin-top:8px;display:none}
+.test-result.ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.test-result.err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo"><span class="s">S</span><span class="az">AZ</span></div>
+    <div class="login-sub">Panel de administración</div>
+    <label class="login-label">Contraseña</label>
+    <input class="login-input" type="password" id="pwd-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Entrar al panel</button>
+    <div class="login-error" id="login-error">Contraseña incorrecta</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo"><span class="s">S</span><span class="az">AZ</span><span class="adm">Admin</span></div>
+    <div class="topbar-right">
+      <a href="../" target="_blank" class="btn btn-outline">👁 Ver sitio</a>
+      <button class="btn btn-pink" onclick="publish()">🚀 Publicar cambios</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Secciones</div>
+        <div class="nav-item active" onclick="showPage('hero',this)"><span class="ico">🏠</span> Hero</div>
+        <div class="nav-item" onclick="showPage('agencia',this)"><span class="ico">🏢</span> La Agencia</div>
+        <div class="nav-item" onclick="showPage('servicios',this)"><span class="ico">💡</span> Servicios</div>
+        <div class="nav-item" onclick="showPage('clientes',this)"><span class="ico">⭐</span> Clientes</div>
+        <div class="nav-item" onclick="showPage('contacto',this)"><span class="ico">📧</span> Contacto</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Sistema</div>
+        <div class="nav-item" onclick="showPage('publicar',this)"><span class="ico">🚀</span> Publicar</div>
+        <div class="nav-item" onclick="showPage('configuracion',this)"><span class="ico">⚙️</span> Configuración</div>
+      </div>
+    </div>
+
+    <div class="main">
+
+      <!-- HERO -->
+      <div class="page active" id="page-hero">
+        <div class="page-title">Hero</div>
+        <div class="page-sub">Lo primero que ve el visitante al entrar al sitio.</div>
+        <div class="card">
+          <div class="card-title">Textos principales</div>
+          <div class="field"><label>Título — línea 1</label><input id="f-h1"></div>
+          <div class="field"><label>Título — línea 2 (aparece en rosa)</label><input id="f-h2"></div>
+          <div class="field"><label>Título — línea 3</label><input id="f-h3"></div>
+          <div class="field"><label>Subtítulo</label><textarea id="f-hsub"></textarea></div>
+          <div class="field-row">
+            <div class="field"><label>Botón 1</label><input id="f-hbtn1"></div>
+            <div class="field"><label>Botón 2</label><input id="f-hbtn2"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Imagen de fondo</div>
+          <div class="img-upload">
+            <input type="file" accept="image/*" onchange="handleImg(this,'hero','prev-hero','fname-hero',1200,700,.75)">
+            <div class="ico-u">🖼️</div>
+            <p><strong>Subí una foto</strong> para el fondo del hero<br>JPG/PNG — 1600×900px ideal</p>
+            <img id="prev-hero" class="img-preview">
+            <div id="fname-hero" class="img-fname"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AGENCIA -->
+      <div class="page" id="page-agencia">
+        <div class="page-title">La Agencia</div>
+        <div class="page-sub">Presentación y estadísticas de la agencia.</div>
+        <div class="card">
+          <div class="card-title">Textos</div>
+          <div class="field"><label>Título</label><input id="f-agtit"></div>
+          <div class="field"><label>Descripción</label><textarea id="f-agdesc"></textarea></div>
+          <div class="field-row">
+            <div class="field"><label>Stat 1 — número</label><input id="f-s1n"></div>
+            <div class="field"><label>Stat 1 — texto</label><input id="f-s1l"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Stat 2 — número</label><input id="f-s2n"></div>
+            <div class="field"><label>Stat 2 — texto</label><input id="f-s2l"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Foto de la agencia</div>
+          <div class="img-upload">
+            <input type="file" accept="image/*" onchange="handleImg(this,'agencia','prev-agencia','fname-agencia',800,800,.78)">
+            <div class="ico-u">📸</div>
+            <p><strong>Foto del equipo o la oficina</strong><br>JPG/PNG — formato cuadrado ideal</p>
+            <img id="prev-agencia" class="img-preview">
+            <div id="fname-agencia" class="img-fname"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SERVICIOS -->
+      <div class="page" id="page-servicios">
+        <div class="page-title">Servicios</div>
+        <div class="page-sub">Editá la descripción de cada servicio. El nombre no cambia.</div>
+        <div class="card">
+          <div class="card-title">Descripciones</div>
+          <div id="serv-list"></div>
+        </div>
+      </div>
+
+      <!-- CLIENTES -->
+      <div class="page" id="page-clientes">
+        <div class="page-title">Clientes</div>
+        <div class="page-sub">Editá los nombres de las marcas en el logo wall.</div>
+        <div class="card">
+          <div class="card-title">Logo wall — 12 marcas</div>
+          <div class="client-grid" id="client-list"></div>
+        </div>
+      </div>
+
+      <!-- CONTACTO -->
+      <div class="page" id="page-contacto">
+        <div class="page-title">Contacto</div>
+        <div class="page-sub">Datos de contacto y foto de la directora.</div>
+        <div class="card">
+          <div class="card-title">Datos</div>
+          <div class="field"><label>Nombre directora</label><input id="f-ctnombre"></div>
+          <div class="field"><label>Email</label><input id="f-ctemail" type="email"></div>
+          <div class="field"><label>Teléfono / WhatsApp (solo números, sin espacios ni guiones)</label><input id="f-cttel" placeholder="+5491163541585"></div>
+          <div class="field-hint" style="margin-top:-10px;margin-bottom:14px">Ejemplo: +5491163541585 (se usa para el botón de WhatsApp)</div>
+          <div class="field"><label>Sitio web</label><input id="f-ctweb"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Foto de Soledad</div>
+          <div class="img-upload">
+            <input type="file" accept="image/*" onchange="handleImg(this,'sole','prev-sole','fname-sole',400,400,.82)">
+            <div class="ico-u">👩‍💼</div>
+            <p><strong>Foto de Soledad Azcurrain</strong><br>JPG/PNG — cuadrada, 400×400px ideal</p>
+            <img id="prev-sole" class="img-preview" style="border-radius:50%;max-height:120px;width:120px;margin:10px auto 0;display:none">
+            <div id="fname-sole" class="img-fname"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PUBLICAR -->
+      <div class="page" id="page-publicar">
+        <div class="page-title">Publicar</div>
+        <div class="page-sub">Guardá los cambios en GitHub para que todos los vean.</div>
+
+        <div class="status-bar">
+          <div class="status-dot ok" id="status-dot"></div>
+          <div class="status-text">
+            <h4 id="status-title">Listo para publicar</h4>
+            <p id="status-sub">Los cambios se suben directo al repositorio de GitHub</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">¿Cómo funciona?</div>
+          <div class="config-step"><div class="cn">1</div><p>Editás el contenido en las secciones del panel.</p></div>
+          <div class="config-step"><div class="cn">2</div><p>Apretás <strong>Publicar cambios</strong> (arriba a la derecha o el botón de abajo).</p></div>
+          <div class="config-step"><div class="cn">3</div><p>El admin sube el archivo <code>content.json</code> directamente a tu repositorio de GitHub.</p></div>
+          <div class="config-step"><div class="cn">4</div><p>GitHub Pages se actualiza automáticamente en ~30 segundos. Todos los visitantes ven los cambios.</p></div>
+        </div>
+
+        <button class="pub-btn" onclick="publish()" id="pub-main-btn">🚀 Publicar cambios ahora</button>
+        <div class="pub-note" id="pub-note">Los cambios estarán visibles en el sitio en aproximadamente 30 segundos.</div>
+
+        <div id="pub-result" class="test-result" style="margin-top:12px"></div>
+      </div>
+
+      <!-- CONFIGURACION -->
+      <div class="page" id="page-configuracion">
+        <div class="page-title">Configuración</div>
+        <div class="page-sub">Conectá el admin con tu repositorio de GitHub. Se hace una sola vez.</div>
+
+        <div class="config-alert">
+          <strong>¿Cómo obtener el Token de GitHub?</strong><br>
+          1. Entrá a <strong>github.com</strong> → tu foto → <strong>Settings</strong><br>
+          2. Bajá hasta <strong>Developer settings</strong> → <strong>Personal access tokens</strong> → <strong>Tokens (classic)</strong><br>
+          3. Click en <strong>Generate new token (classic)</strong><br>
+          4. Poné un nombre (ej: "SAZ Admin"), seleccioná el scope <strong>repo</strong> y generalo<br>
+          5. Copiá el token y pegalo abajo — solo se muestra una vez
+        </div>
+
+        <div class="card">
+          <div class="card-title">Datos del repositorio</div>
+          <div class="field">
+            <label>Usuario de GitHub (owner)</label>
+            <input id="cfg-owner" placeholder="ej: sazpublicidad">
+            <div class="field-hint">Es el nombre de usuario o la organización dueña del repo</div>
+          </div>
+          <div class="field">
+            <label>Nombre del repositorio</label>
+            <input id="cfg-repo" placeholder="ej: saz-web">
+          </div>
+          <div class="field">
+            <label>Rama (branch)</label>
+            <input id="cfg-branch" value="main" placeholder="main">
+          </div>
+          <div class="field">
+            <label>Token de GitHub</label>
+            <input id="cfg-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+            <div class="field-hint">Se guarda solo en tu navegador, nunca se sube al repo</div>
+          </div>
+          <button class="pub-btn" style="margin-top:8px" onclick="saveConfig()">💾 Guardar configuración</button>
+          <div id="cfg-result" class="test-result" style="margin-top:10px"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Probar conexión</div>
+          <p style="font-size:13px;color:#666;margin-bottom:14px">Verificá que el admin puede conectarse a GitHub correctamente.</p>
+          <button class="pub-btn" style="background:#555" onclick="testConnection()">🔌 Probar conexión con GitHub</button>
+          <div id="test-result" class="test-result"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const PWD = 'saz2025';
+
+const SERV_DEFAULTS = [
+  {name:'TV Abierta y Cable',       desc:'Presencia en los canales más vistos del país con planificación estratégica de pauta.'},
+  {name:'Radio AM & FM',            desc:'Campañas en las radios líderes con alto alcance y segmentación geográfica.'},
+  {name:'Streaming',                desc:'Acceso a plataformas de contenido digital con audiencias en constante crecimiento.'},
+  {name:'Medios Digitales',         desc:'Estrategias en redes sociales, display, SEO/SEM y todo el ecosistema digital.'},
+  {name:'Vía Pública',              desc:'Carteles, pantallas LED y espacios de alto impacto en zonas estratégicas.'},
+  {name:'Influencers & Celebrities',desc:'Conexión con figuras de alto impacto para amplificar el mensaje de tu marca.'},
+  {name:'Contenido para Redes',     desc:'Creación y gestión de contenido estratégico para todas las plataformas sociales.'},
+  {name:'Eventos & Acciones',       desc:'Activaciones de marca, lanzamientos y experiencias de alto impacto.'},
+  {name:'Gráfica & Diseño',         desc:'Producción gráfica para medios impresos y digitales con identidad de marca.'},
+];
+const CLIENT_DEF = ['PEABODY','COTO','Optium','JANOME','KIOSHI','GRUPO SOLANAS','Chevallier','ONFIT','PASEO LA PLAZA','TEATRO METROPOLITAN','AKEMUSIC','OPTITECH'];
+
+// ── AUTH ──────────────────────────────────────────────────
+function doLogin() {
+  if(document.getElementById('pwd-input').value === PWD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    init();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+    setTimeout(() => document.getElementById('login-error').style.display='none', 3000);
+  }
+}
+document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('pwd-input').focus();
+
+// ── CONFIG ────────────────────────────────────────────────
+function getConfig() {
+  return {
+    owner:  localStorage.getItem('saz-gh-owner')  || '',
+    repo:   localStorage.getItem('saz-gh-repo')   || '',
+    branch: localStorage.getItem('saz-gh-branch') || 'main',
+    token:  localStorage.getItem('saz-gh-token')  || '',
+  };
+}
+
+function saveConfig() {
+  const owner  = document.getElementById('cfg-owner').value.trim();
+  const repo   = document.getElementById('cfg-repo').value.trim();
+  const branch = document.getElementById('cfg-branch').value.trim() || 'main';
+  const token  = document.getElementById('cfg-token').value.trim();
+  if(!owner || !repo || !token) {
+    showResult('cfg-result','err','Completá todos los campos (usuario, repo y token).');
+    return;
+  }
+  localStorage.setItem('saz-gh-owner',  owner);
+  localStorage.setItem('saz-gh-repo',   repo);
+  localStorage.setItem('saz-gh-branch', branch);
+  localStorage.setItem('saz-gh-token',  token);
+  showResult('cfg-result','ok','✓ Configuración guardada. Ahora probá la conexión.');
+}
+
+function loadConfigFields() {
+  const c = getConfig();
+  document.getElementById('cfg-owner').value  = c.owner;
+  document.getElementById('cfg-repo').value   = c.repo;
+  document.getElementById('cfg-branch').value = c.branch;
+  document.getElementById('cfg-token').value  = c.token;
+}
+
+// ── GITHUB API ────────────────────────────────────────────
+async function ghRequest(method, path, body) {
+  const {owner, repo, branch, token} = getConfig();
+  if(!token) throw new Error('No hay token configurado. Andá a Configuración primero.');
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+  const resp = await fetch(url, {
+    method,
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github+json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await resp.json();
+  if(!resp.ok) throw new Error(data.message || `Error ${resp.status}`);
+  return data;
+}
+
+async function getFileSHA(path) {
+  try {
+    const data = await ghRequest('GET', path);
+    return data.sha;
+  } catch(e) {
+    return null; // archivo no existe aún
+  }
+}
+
+async function testConnection() {
+  const btn = event.target;
+  btn.textContent = 'Probando...';
+  btn.disabled = true;
+  try {
+    const {owner, repo} = getConfig();
+    await ghRequest('GET', 'content.json');
+    showResult('test-result','ok',`✓ Conexión exitosa con ${owner}/${repo}. El admin puede publicar cambios.`);
+  } catch(e) {
+    if(e.message.includes('Not Found')) {
+      showResult('test-result','ok','✓ Conexión exitosa. El archivo content.json se creará en la primera publicación.');
+    } else {
+      showResult('test-result','err','✗ Error: ' + e.message);
+    }
+  } finally {
+    btn.textContent = '🔌 Probar conexión con GitHub';
+    btn.disabled = false;
+  }
+}
+
+// ── COLLECT STATE ─────────────────────────────────────────
+function collectState() {
+  const state = {};
+  ['h1','h2','h3','hsub','hbtn1','hbtn2','agtit','agdesc','s1n','s1l','s2n','s2l','ctnombre','ctemail','cttel','ctweb'].forEach(k => {
+    const el = document.getElementById('f-'+k);
+    if(el) state[k] = el.value;
+  });
+  state.servDescs = SERV_DEFAULTS.map((_,i) => {
+    const el = document.getElementById('fs-'+i); return el ? el.value : SERV_DEFAULTS[i].desc;
+  });
+  state.clientNames = CLIENT_DEF.map((_,i) => {
+    const el = document.getElementById('fc-'+i); return el ? el.value : CLIENT_DEF[i];
+  });
+  // Collect images from localStorage
+  state.imgs = JSON.parse(localStorage.getItem('saz-imgs') || '{}');
+  return state;
+}
+
+// ── PUBLISH ───────────────────────────────────────────────
+async function publish() {
+  const cfg = getConfig();
+  if(!cfg.owner || !cfg.repo || !cfg.token) {
+    alert('Primero configurá el repositorio de GitHub en la sección "Configuración".');
+    showPage('configuracion', document.querySelector('[onclick*="configuracion"]'));
+    return;
+  }
+
+  const btn = document.getElementById('pub-main-btn');
+  const topBtn = document.querySelector('.topbar-right .btn-pink');
+  btn.disabled = true;
+  btn.textContent = '⏳ Publicando...';
+  if(topBtn) { topBtn.disabled = true; topBtn.textContent = '⏳ Publicando...'; }
+
+  setStatus('pending','Publicando...','Subiendo cambios a GitHub...');
+
+  try {
+    const state = collectState();
+    const content = JSON.stringify(state, null, 2);
+    // Base64 encode with proper UTF-8 support
+    const b64 = btoa(unescape(encodeURIComponent(content)));
+    const sha = await getFileSHA('content.json');
+
+    const body = {
+      message: 'Actualizar contenido del sitio — SAZ Admin',
+      content: b64,
+      branch: cfg.branch,
+    };
+    if(sha) body.sha = sha;
+
+    await ghRequest('PUT', 'content.json', body);
+
+    setStatus('ok','✓ Publicado correctamente','El sitio se actualiza en ~30 segundos en GitHub Pages');
+    showResult('pub-result','ok','✓ content.json actualizado en GitHub. El sitio estará actualizado en aproximadamente 30 segundos. Refrescá la página del sitio para verlo.');
+    btn.textContent = '✓ Publicado';
+    btn.style.background = '#16a34a';
+    if(topBtn) { topBtn.textContent = '✓ Publicado'; topBtn.style.background = '#16a34a'; }
+
+  } catch(e) {
+    setStatus('error','Error al publicar',e.message);
+    showResult('pub-result','err','✗ Error: ' + e.message + '. Revisá la configuración de GitHub.');
+    btn.textContent = '🚀 Publicar cambios ahora';
+    if(topBtn) topBtn.textContent = '🚀 Publicar cambios';
+  } finally {
+    btn.disabled = false;
+    if(topBtn) topBtn.disabled = false;
+    setTimeout(() => {
+      btn.textContent = '🚀 Publicar cambios ahora';
+      btn.style.background = '';
+      if(topBtn) { topBtn.textContent = '🚀 Publicar cambios'; topBtn.style.background = ''; }
+    }, 5000);
+  }
+}
+
+// ── IMAGES ────────────────────────────────────────────────
+async function compressImage(file, maxW, maxH, quality) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.width, h = img.height;
+      if(w > maxW){ h = Math.round(h * maxW / w); w = maxW; }
+      if(h > maxH){ w = Math.round(w * maxH / h); h = maxH; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = url;
+  });
+}
+
+async function handleImg(input, key, prevId, fnameId, maxW, maxH, quality) {
+  const file = input.files[0]; if(!file) return;
+  const fname = document.getElementById(fnameId);
+  if(fname){ fname.textContent = '⏳ Procesando...'; fname.style.display='block'; }
+
+  const src = await compressImage(file, maxW, maxH, quality);
+
+  const prev = document.getElementById(prevId);
+  if(prev){ prev.src=src; prev.style.display='block'; }
+  if(fname){ fname.textContent='✓ '+file.name; fname.style.display='block'; }
+
+  const imgs = JSON.parse(localStorage.getItem('saz-imgs')||'{}');
+  imgs[key] = src;
+  localStorage.setItem('saz-imgs', JSON.stringify(imgs));
+}
+
+// ── INIT ──────────────────────────────────────────────────
+async function init() {
+  // Load current content.json from GitHub
+  let C = {};
+  try {
+    const cfg = getConfig();
+    if(cfg.owner && cfg.repo) {
+      // Try to get content from the published site (raw GitHub)
+      const resp = await fetch(`https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch}/content.json?_=${Date.now()}`);
+      if(resp.ok) C = await resp.json();
+    }
+  } catch(e) { /* use defaults */ }
+
+  // Fill text fields
+  const textMap = {
+    h1:'Las ideas', h2:'transforman', h3:'marcas.',
+    hsub:'Desarrollamos estrategias de comunicación y publicidad para marcas que buscan posicionarse, crecer y generar impacto real.',
+    hbtn1:'Ver servicios', hbtn2:'Contactanos',
+    agtit:'Estrategia, creatividad y resultados reales.',
+    agdesc:'En SAZ Publicidad desarrollamos estrategias de comunicación y publicidad para marcas que buscan posicionarse, crecer y generar impacto real. Más de 15 años trabajando junto a importantes medios y clientes de distintos rubros.',
+    s1n:'+15', s1l:'Años en el mercado', s2n:'100%', s2l:'Orientados a resultados',
+    ctnombre:'Soledad Azcurrain', ctemail:'comercial.sazpublicidad@gmail.com',
+    cttel:'+54 9 11.6354.1585', ctweb:'www.sazpublicidad.com.ar'
+  };
+  Object.entries(textMap).forEach(([k, def]) => {
+    const el = document.getElementById('f-'+k);
+    if(el) el.value = C[k] !== undefined ? C[k] : def;
+  });
+
+  // Services
+  document.getElementById('serv-list').innerHTML = SERV_DEFAULTS.map((s,i) => `
+    <div class="serv-row">
+      <div class="snum">${String(i+1).padStart(2,'0')}</div>
+      <div class="sbody">
+        <div class="sname">${s.name}</div>
+        <input id="fs-${i}" value="${esc(C.servDescs && C.servDescs[i] !== undefined ? C.servDescs[i] : s.desc)}">
+      </div>
+    </div>`).join('');
+
+  // Clients
+  document.getElementById('client-list').innerHTML = CLIENT_DEF.map((c,i) => {
+    const val = C.clientNames && C.clientNames[i] !== undefined ? C.clientNames[i] : c;
+    return `<input id="fc-${i}" value="${esc(val)}">`;
+  }).join('');
+
+  // Image previews
+  const imgs = JSON.parse(localStorage.getItem('saz-imgs')||'{}');
+  const savedImgs = C.imgs || {};
+  [['hero','prev-hero','fname-hero'],['agencia','prev-agencia','fname-agencia'],['sole','prev-sole','fname-sole']].forEach(([k,pId,fId]) => {
+    const src = imgs[k] || savedImgs[k];
+    if(src) {
+      const p=document.getElementById(pId); if(p){p.src=src;p.style.display='block';}
+    }
+  });
+
+  // Config fields
+  loadConfigFields();
+  if(!getConfig().token) {
+    setStatus('pending','Configuración pendiente','Completá los datos de GitHub en la sección "Configuración"');
+  }
+}
+
+// ── UI HELPERS ────────────────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+function setStatus(type, title, sub) {
+  const dot   = document.getElementById('status-dot');
+  const stitle = document.getElementById('status-title');
+  const ssub  = document.getElementById('status-sub');
+  dot.className = 'status-dot ' + type;
+  stitle.textContent = title;
+  ssub.textContent   = sub;
+}
+
+function showResult(id, type, msg) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.className = 'test-result ' + type;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+</script>
+</body>
+</html>
