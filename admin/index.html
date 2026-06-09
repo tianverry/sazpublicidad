@@ -143,6 +143,7 @@ body{font-family:'Inter',sans-serif;background:#f4f4f6;color:var(--dark);font-si
       </div>
       <div class="sidebar-section">
         <div class="sidebar-label">Sistema</div>
+        <div class="nav-item" onclick="showPage('marca',this)"><span class="ico">🎨</span> Marca</div>
         <div class="nav-item" onclick="showPage('publicar',this)"><span class="ico">🚀</span> Publicar</div>
         <div class="nav-item" onclick="showPage('configuracion',this)"><span class="ico">⚙️</span> Configuración</div>
       </div>
@@ -246,6 +247,22 @@ body{font-family:'Inter',sans-serif;background:#f4f4f6;color:var(--dark);font-si
             <p><strong>Foto de Soledad Azcurrain</strong><br>JPG/PNG — cuadrada, 400×400px ideal</p>
             <img id="prev-sole" class="img-preview" style="border-radius:50%;max-height:120px;width:120px;margin:10px auto 0;display:none">
             <div id="fname-sole" class="img-fname"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARCA -->
+      <div class="page" id="page-marca">
+        <div class="page-title">Marca</div>
+        <div class="page-sub">Logo que aparece en la barra de navegación.</div>
+        <div class="card">
+          <div class="card-title">Logo</div>
+          <div class="img-upload">
+            <input type="file" accept="image/*" onchange="handleImg(this,'logo','prev-logo','fname-logo',300,120,.95)">
+            <div class="ico-u">🎨</div>
+            <p><strong>Subí el logo de SAZ Publicidad</strong><br>PNG con fondo transparente ideal — máx 300px de ancho</p>
+            <img id="prev-logo" class="img-preview" style="max-height:80px;object-fit:contain;background:#f5f5f5;padding:10px;border-radius:8px">
+            <div id="fname-logo" class="img-fname"></div>
           </div>
         </div>
       </div>
