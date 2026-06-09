@@ -549,12 +549,40 @@ async function compressImage(file, maxW, maxH, quality) {
   });
 }
 
+async function compressLogo(file, maxW, maxH) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let w = img.width, h = img.height;
+      if(w > maxW){ h = Math.round(h * maxW / w); w = maxW; }
+      if(h > maxH){ w = Math.round(w * maxH / h); h = maxH; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      // Remove near-black background pixels (threshold < 40)
+      const id = ctx.getImageData(0, 0, w, h);
+      const d = id.data;
+      for(let i = 0; i < d.length; i += 4) {
+        if(d[i] < 40 && d[i+1] < 40 && d[i+2] < 40) d[i+3] = 0;
+      }
+      ctx.putImageData(id, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.src = url;
+  });
+}
+
 async function handleImg(input, key, prevId, fnameId, maxW, maxH, quality) {
   const file = input.files[0]; if(!file) return;
   const fname = document.getElementById(fnameId);
   if(fname){ fname.textContent = '⏳ Procesando...'; fname.style.display='block'; }
 
-  const src = await compressImage(file, maxW, maxH, quality);
+  const src = key === 'logo'
+    ? await compressLogo(file, maxW, maxH)
+    : await compressImage(file, maxW, maxH, quality);
 
   const prev = document.getElementById(prevId);
   if(prev){ prev.src=src; prev.style.display='block'; }
