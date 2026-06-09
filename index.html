@@ -359,6 +359,27 @@ const SERV_ICONS   = ['📺','📻','📡','💻','🏙️','⭐','📲','🎭',
 const CLIENT_DEF   = ['PEABODY','COTO','Optium','JANOME','KIOSHI','GRUPO SOLANAS','Chevallier','ONFIT','PASEO LA PLAZA','TEATRO METROPOLITAN','AKEMUSIC','OPTITECH'];
 const CLIENT_COLORS= ['#1a6fad','#c00','#5a9e3a','#e02060','#222','#8a7040','#222','#444','#222','#555','#7b3fa0','#e02060'];
 
+function removeBg(dataUrl) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.width; c.height = img.height;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const id = ctx.getImageData(0, 0, c.width, c.height);
+      const d = id.data;
+      for(let i = 0; i < d.length; i += 4) {
+        if(d[i] < 40 && d[i+1] < 40 && d[i+2] < 40) d[i+3] = 0;
+      }
+      ctx.putImageData(id, 0, 0);
+      resolve(c.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
 function apply(C) {
   const t = (id, key, fb) => { const el=document.getElementById(id); if(el) el.textContent = C[key]||fb||''; };
   t('site-h1','h1','Las ideas');
@@ -384,8 +405,10 @@ function apply(C) {
   // Images
   const imgs = C.imgs||{};
   if(imgs.logo){
-    const li=document.getElementById('logo-img'); li.src=imgs.logo; li.style.display='block';
-    document.getElementById('logo-text').style.display='none';
+    removeBg(imgs.logo).then(src=>{
+      const li=document.getElementById('logo-img'); li.src=src; li.style.display='block';
+      document.getElementById('logo-text').style.display='none';
+    });
   }
   if(imgs.hero){const el=document.getElementById('hero-bg-img');el.src=imgs.hero;el.style.display='block';}
   if(imgs.agencia){const el=document.getElementById('ag-visual-img');el.src=imgs.agencia;el.style.display='block';}
