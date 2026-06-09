@@ -562,11 +562,12 @@ async function compressLogo(file, maxW, maxH) {
       canvas.width = w; canvas.height = h;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      // Remove near-black background pixels (threshold < 40)
+      // detect background from top-left corner pixel and remove similar pixels
       const id = ctx.getImageData(0, 0, w, h);
       const d = id.data;
+      const br=d[0],bg=d[1],bb=d[2], thr=60;
       for(let i = 0; i < d.length; i += 4) {
-        if(d[i] < 40 && d[i+1] < 40 && d[i+2] < 40) d[i+3] = 0;
+        if(Math.abs(d[i]-br)<thr && Math.abs(d[i+1]-bg)<thr && Math.abs(d[i+2]-bb)<thr) d[i+3]=0;
       }
       ctx.putImageData(id, 0, 0);
       resolve(canvas.toDataURL('image/png'));

@@ -369,8 +369,11 @@ function removeBg(dataUrl) {
       ctx.drawImage(img, 0, 0);
       const id = ctx.getImageData(0, 0, c.width, c.height);
       const d = id.data;
+      // detect background from top-left corner pixel
+      const br = d[0], bg = d[1], bb = d[2];
+      const thr = 60;
       for(let i = 0; i < d.length; i += 4) {
-        if(d[i] < 40 && d[i+1] < 40 && d[i+2] < 40) d[i+3] = 0;
+        if(Math.abs(d[i]-br)<thr && Math.abs(d[i+1]-bg)<thr && Math.abs(d[i+2]-bb)<thr) d[i+3]=0;
       }
       ctx.putImageData(id, 0, 0);
       resolve(c.toDataURL('image/png'));
