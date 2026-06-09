@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAZ Publicidad</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--pink:#E91E8C;--gray:#4A4A4A;--light:#F7F7F7;--white:#fff;--dark:#1a1a1a}
+body{font-family:'Inter',sans-serif;color:var(--dark);background:var(--white);overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+
+/* ── ADMIN TOGGLE ── */
+#admin-btn{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--pink);color:#fff;border:none;border-radius:100px;padding:12px 20px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(233,30,140,.4);font-family:'Inter',sans-serif}
+#admin-btn:hover{opacity:.85}
+
+/* ── ADMIN PANEL ── */
+#admin-panel{display:none;position:fixed;inset:0;z-index:998;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+#admin-panel.open{display:flex}
+.admin-drawer{background:#fff;width:480px;max-width:95vw;height:100vh;overflow-y:auto;margin-left:auto;box-shadow:-8px 0 40px rgba(0,0,0,.2)}
+.admin-top{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;z-index:10}
+.admin-logo{font-size:16px;font-weight:700;color:var(--pink)}
+.admin-close{background:none;border:none;font-size:22px;cursor:pointer;color:#888;padding:4px}
+.admin-tabs{display:flex;gap:0;border-bottom:1px solid #eee;overflow-x:auto}
+.atab{padding:10px 16px;font-size:12px;font-weight:600;color:#888;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif}
+.atab.active{color:var(--pink);border-bottom-color:var(--pink)}
+.admin-body{padding:24px}
+.apanel{display:none}.apanel.active{display:block}
+.afield{margin-bottom:16px}
+.afield label{display:block;font-size:11px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.afield input,.afield textarea{width:100%;padding:9px 12px;border:1px solid #e5e5e5;border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:var(--dark);background:#fafafa}
+.afield input:focus,.afield textarea:focus{outline:none;border-color:var(--pink);background:#fff}
+.afield textarea{min-height:80px;resize:vertical}
+.arow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.img-drop{border:1.5px dashed #ddd;border-radius:10px;padding:20px;text-align:center;cursor:pointer;position:relative;background:#fafafa;transition:all .2s}
+.img-drop:hover{border-color:var(--pink);background:#fdf0f7}
+.img-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-drop p{font-size:12px;color:#aaa}
+.img-drop p strong{color:var(--pink)}
+.img-drop .thumb{width:100%;max-height:140px;object-fit:cover;border-radius:8px;margin-top:10px;display:none}
+.serv-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px;background:#fafafa;border-radius:8px;border:1px solid #eee}
+.serv-row .snum{font-size:11px;font-weight:700;color:var(--pink);min-width:20px}
+.serv-row input{flex:1;border:1px solid #eee;border-radius:6px;padding:6px 10px;font-size:12px;font-family:'Inter',sans-serif;background:#fff}
+.serv-row input:focus{outline:none;border-color:var(--pink)}
+.client-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.client-wrap input{border:1px solid #eee;border-radius:6px;padding:7px 10px;font-size:12px;font-family:'Inter',sans-serif;background:#fafafa;width:100%}
+.client-wrap input:focus{outline:none;border-color:var(--pink)}
+.publish-btn{width:100%;background:var(--pink);color:#fff;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:8px}
+.publish-btn:hover{opacity:.88}
+.publish-note{font-size:11px;color:#aaa;text-align:center;margin-top:8px;line-height:1.5}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid #eee;padding:0 5%}
+.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo-nav{display:flex;align-items:baseline;gap:2px;font-size:22px;font-weight:700;letter-spacing:-.5px}
+.logo-nav .s{color:var(--pink);font-size:26px}.logo-nav .az{color:var(--gray)}
+.logo-nav .pub{font-size:11px;font-weight:400;color:#999;margin-left:4px;letter-spacing:1px;text-transform:uppercase}
+.nav-links{display:flex;gap:32px;font-size:13px;color:#666}
+.nav-links a:hover{color:var(--pink)}
+.nav-cta{background:var(--pink);color:#fff;padding:8px 20px;border-radius:100px;font-size:13px;font-weight:500}
+.nav-cta:hover{opacity:.85}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;align-items:center;padding:80px 5% 60px;position:relative;overflow:hidden;background:#0f0f0f}
+.hero-visual{position:absolute;inset:0;opacity:.5}
+.hero-visual svg{width:100%;height:100%}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(105deg,rgba(10,10,10,.95) 40%,rgba(10,10,10,.4) 100%)}
+#hero-bg-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.35}
+.hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:2}
+.hero-tag{display:inline-block;background:rgba(233,30,140,.18);color:#f472b6;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:20px}
+.hero h1{font-size:54px;font-weight:700;line-height:1.05;letter-spacing:-2px;margin-bottom:24px;color:#fff}
+.hero h1 span{color:var(--pink)}
+.hero p{font-size:17px;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:36px;max-width:420px}
+.hero-btns{display:flex;gap:12px}
+.btn-primary{background:var(--pink);color:#fff;padding:14px 28px;border-radius:100px;font-size:14px;font-weight:600}
+.btn-primary:hover{opacity:.85}
+.btn-ghost{border:1.5px solid rgba(255,255,255,.25);color:#fff;padding:14px 28px;border-radius:100px;font-size:14px;font-weight:500}
+.btn-ghost:hover{border-color:#fff}
+.hero-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hc{border-radius:14px;padding:24px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.07)}
+.hc.acc{background:var(--pink);border-color:var(--pink)}
+.hc .n{font-size:32px;font-weight:700;color:#fff;letter-spacing:-1px;margin-bottom:4px}
+.hc .n.pk{color:var(--pink)}
+.hc .l{font-size:12px;color:rgba(255,255,255,.55);line-height:1.4}
+
+/* ── SECTIONS ── */
+section{padding:100px 5%}
+.container{max-width:1100px;margin:0 auto}
+.tag{display:inline-block;background:#FDE8F3;color:var(--pink);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:20px}
+.section-title{font-size:40px;font-weight:700;letter-spacing:-1.2px;margin-bottom:16px;line-height:1.1}
+.section-sub{font-size:16px;color:#666;line-height:1.7;max-width:520px}
+
+/* AGENCIA */
+.agencia-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center;margin-top:60px}
+.ag-visual{border-radius:20px;overflow:hidden;background:#111;display:flex;flex-direction:column;justify-content:center;padding:40px 36px;min-height:460px}
+.ag-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.ag-card{border-radius:14px;padding:22px}
+.ag-card.dark{background:#1a1a1a;border:1px solid #2a2a2a}
+.ag-card.pink{background:var(--pink)}
+.ag-card .n{font-size:34px;font-weight:700;letter-spacing:-1px;margin-bottom:4px}
+.ag-card.dark .n{color:var(--pink)}.ag-card.pink .n{color:#fff}
+.ag-card .l{font-size:12px}.ag-card.dark .l{color:#666}.ag-card.pink .l{color:rgba(255,255,255,.75)}
+.ag-quote{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:14px;padding:20px 24px}
+.ag-quote .ql{font-size:11px;color:var(--pink);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.ag-quote .qt{font-size:14px;color:#ccc;line-height:1.6;font-style:italic}
+.stats-row{display:flex;gap:32px;margin:36px 0}
+.stat .n{font-size:36px;font-weight:700;color:var(--pink);letter-spacing:-1px}
+.stat .l{font-size:12px;color:#999;margin-top:2px}
+.val-item{display:flex;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid #f0f0f0}
+.val-item:first-child{border-top:1px solid #f0f0f0}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--pink);flex-shrink:0}
+.val-text{font-size:14px;font-weight:500}
+
+/* SERVICIOS */
+.servicios{background:var(--light)}
+.serv-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:60px;flex-wrap:wrap;gap:20px}
+.serv-grid{display:grid;grid-template-columns:repeat(3,1fr);border-radius:20px;overflow:hidden;border:1px solid #e5e5e5}
+.serv-card{background:#fff;padding:0;border-right:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5;transition:background .2s;overflow:hidden}
+.serv-card:hover{background:#fdf0f7}
+.serv-card:nth-child(3n){border-right:none}
+.serv-card:nth-child(7),.serv-card:nth-child(8),.serv-card:nth-child(9){border-bottom:none}
+.serv-img{height:130px;overflow:hidden}
+.serv-img svg,.serv-img img{width:100%;height:100%;object-fit:cover;display:block}
+.serv-body{padding:20px 22px 24px}
+.serv-body h3{font-size:14px;font-weight:600;margin-bottom:6px}
+.serv-body p{font-size:12px;color:#888;line-height:1.5}
+
+/* DIFERENCIAL */
+.diferencial{background:var(--dark);overflow:hidden;position:relative}
+.dif-bg{position:absolute;inset:0;opacity:.08}
+.dif-bg svg{width:100%;height:100%}
+.dif-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-top:60px;position:relative;z-index:2}
+.diferencial .tag{background:rgba(233,30,140,.2);color:#f472b6}
+.diferencial .section-title{color:#fff}
+.diferencial .section-sub{color:#888}
+.dif-chart{border-radius:20px;overflow:hidden}
+.dif-chart svg{display:block;width:100%}
+.dif-item{display:flex;align-items:flex-start;gap:20px;padding:20px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.dif-item:first-child{border-top:1px solid rgba(255,255,255,.07)}
+.dif-num{font-size:13px;font-weight:600;color:var(--pink);min-width:28px;padding-top:2px}
+.dif-info h4{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px}
+.dif-info p{font-size:12px;color:#666;line-height:1.5}
+
+/* CLIENTES */
+.clientes-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:60px;flex-wrap:wrap;gap:20px}
+.logos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#eee;border-radius:20px;overflow:hidden}
+.logo-cell{background:#fff;padding:32px 20px;display:flex;align-items:center;justify-content:center}
+.logo-cell:hover{background:#fafafa}
+.logo-cell span{font-size:13px;font-weight:700;color:#555;letter-spacing:.5px;text-align:center;line-height:1.3}
+
+/* CONTACTO */
+.contacto{background:var(--light)}
+.contacto-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;margin-top:60px}
+.contact-info{display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+.contact-item{display:flex;align-items:center;gap:14px}
+.ci-icon{width:42px;height:42px;background:#fff;border:1px solid #eee;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.contact-item a{font-size:14px;color:var(--dark)}.contact-item a:hover{color:var(--pink)}
+.directora-box{background:#fff;border-radius:16px;overflow:hidden;border:1px solid #eee;display:flex;align-items:center}
+.dir-img{width:110px;height:110px;flex-shrink:0;overflow:hidden;background:#f0e8f0;display:flex;align-items:center;justify-content:center}
+.dir-img img{width:110px;height:110px;object-fit:cover;object-position:center top;display:block}
+.dir-info{padding:18px 22px}
+.dir-info .role{font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.dir-info .name{font-size:17px;font-weight:700;color:var(--pink)}
+.cta-box{background:var(--dark);border-radius:20px;overflow:hidden}
+.cta-img{height:180px;overflow:hidden;background:#111;display:flex;align-items:center;justify-content:center}
+.cta-img svg,.cta-img img{width:100%;height:100%;object-fit:cover;display:block}
+.cta-content{padding:28px 32px 36px}
+.cta-content h3{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:10px;color:#fff}
+.cta-content p{font-size:14px;color:#777;line-height:1.6;margin-bottom:24px}
+.cta-wa{display:inline-flex;align-items:center;gap:10px;background:var(--pink);color:#fff;padding:13px 26px;border-radius:100px;font-size:14px;font-weight:600}
+.cta-wa:hover{opacity:.85}
+footer{background:#111;color:#555;padding:28px 5%;text-align:center;font-size:13px}
+footer strong{color:#888}
+
+@media(max-width:860px){
+  .hero-inner,.agencia-grid,.dif-layout,.contacto-grid{grid-template-columns:1fr}
+  .hero h1{font-size:36px}.hero-cards{grid-template-columns:1fr 1fr}
+  .serv-grid{grid-template-columns:1fr 1fr}.logos-grid{grid-template-columns:repeat(2,1fr)}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ADMIN BUTTON -->
+<button id="admin-btn" onclick="toggleAdmin()">⚙️ Editar sitio</button>
+
+<!-- ADMIN PANEL -->
+<div id="admin-panel" onclick="panelOutside(event)">
+  <div class="admin-drawer">
+    <div class="admin-top">
+      <div class="admin-logo">✦ Panel de edición — SAZ</div>
+      <button class="admin-close" onclick="toggleAdmin()">✕</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="atab active" onclick="switchTab('hero',this)">Hero</button>
+      <button class="atab" onclick="switchTab('agencia',this)">Agencia</button>
+      <button class="atab" onclick="switchTab('servicios',this)">Servicios</button>
+      <button class="atab" onclick="switchTab('clientes',this)">Clientes</button>
+      <button class="atab" onclick="switchTab('contacto',this)">Contacto</button>
+      <button class="atab" onclick="switchTab('publicar',this)">Publicar</button>
+    </div>
+    <div class="admin-body">
+
+      <!-- HERO TAB -->
+      <div class="apanel active" id="tab-hero">
+        <div class="afield"><label>Título — línea 1</label><input id="a-h1" oninput="liveUpdate()"></div>
+        <div class="afield"><label>Título — línea 2 (en rosa)</label><input id="a-h2" oninput="liveUpdate()"></div>
+        <div class="afield"><label>Título — línea 3</label><input id="a-h3" oninput="liveUpdate()"></div>
+        <div class="afield"><label>Subtítulo</label><textarea id="a-hsub" oninput="liveUpdate()"></textarea></div>
+        <div class="arow">
+          <div class="afield"><label>Botón 1</label><input id="a-hbtn1" oninput="liveUpdate()"></div>
+          <div class="afield"><label>Botón 2</label><input id="a-hbtn2" oninput="liveUpdate()"></div>
+        </div>
+        <div class="afield"><label>Imagen de fondo del Hero</label>
+          <div class="img-drop">
+            <input type="file" accept="image/*" onchange="loadImg(this,'hero-bg-img','a-herobg')">
+            <p>🖼️ <strong>Subí una foto</strong> para el fondo<br>JPG/PNG — 1600×900px ideal</p>
+            <img id="prev-herobg" class="thumb">
+          </div>
+        </div>
+      </div>
+
+      <!-- AGENCIA TAB -->
+      <div class="apanel" id="tab-agencia">
+        <div class="afield"><label>Título</label><input id="a-agtit" oninput="liveUpdate()"></div>
+        <div class="afield"><label>Descripción</label><textarea id="a-agdesc" oninput="liveUpdate()"></textarea></div>
+        <div class="arow">
+          <div class="afield"><label>Stat 1 número</label><input id="a-s1n" oninput="liveUpdate()"></div>
+          <div class="afield"><label>Stat 1 label</label><input id="a-s1l" oninput="liveUpdate()"></div>
+        </div>
+        <div class="arow">
+          <div class="afield"><label>Stat 2 número</label><input id="a-s2n" oninput="liveUpdate()"></div>
+          <div class="afield"><label>Stat 2 label</label><input id="a-s2l" oninput="liveUpdate()"></div>
+        </div>
+        <div class="afield"><label>Foto de la agencia (sección La Agencia)</label>
+          <div class="img-drop">
+            <input type="file" accept="image/*" onchange="loadImg(this,null,'a-agimg')">
+            <p>📸 <strong>Foto del equipo o la oficina</strong><br>JPG/PNG — cuadrada ideal</p>
+            <img id="prev-agimg" class="thumb">
+          </div>
+        </div>
+      </div>
+
+      <!-- SERVICIOS TAB -->
+      <div class="apanel" id="tab-servicios">
+        <p style="font-size:12px;color:#aaa;margin-bottom:16px">Editá la descripción de cada servicio.</p>
+        <div id="serv-admin"></div>
+      </div>
+
+      <!-- CLIENTES TAB -->
+      <div class="apanel" id="tab-clientes">
+        <p style="font-size:12px;color:#aaa;margin-bottom:16px">Editá los nombres de las marcas.</p>
+        <div class="client-wrap" id="client-admin"></div>
+      </div>
+
+      <!-- CONTACTO TAB -->
+      <div class="apanel" id="tab-contacto">
+        <div class="afield"><label>Nombre directora</label><input id="a-ctnombre" oninput="liveUpdate()"></div>
+        <div class="afield"><label>Email</label><input id="a-ctemail" oninput="liveUpdate()"></div>
+        <div class="afield"><label>Teléfono / WhatsApp</label><input id="a-cttel" oninput="liveUpdate()"></div>
+        <div class="afield"><label>Sitio web</label><input id="a-ctweb" oninput="liveUpdate()"></div>
+        <div class="afield"><label>Foto de Soledad</label>
+          <div class="img-drop">
+            <input type="file" accept="image/*" onchange="loadImg(this,'sole-photo','a-soleimg')">
+            <p>👩‍💼 <strong>Subí la foto de Soledad</strong><br>JPG/PNG — cuadrada ideal</p>
+            <img id="prev-soleimg" class="thumb">
+          </div>
+        </div>
+      </div>
+
+      <!-- PUBLICAR TAB -->
+      <div class="apanel" id="tab-publicar">
+        <p style="font-size:13px;color:#666;line-height:1.7;margin-bottom:20px">Al presionar <strong>Descargar index.html</strong> se genera el archivo con todos los cambios aplicados. Luego lo subís a tu repo de GitHub y se publica automáticamente.</p>
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;margin-bottom:20px">
+          <p style="font-size:12px;color:#166534;line-height:1.7">
+            <strong>Pasos:</strong><br>
+            1. Hacé los cambios en las pestañas<br>
+            2. Apretá el botón de abajo<br>
+            3. Reemplazá el <code style="background:#dcfce7;padding:2px 5px;border-radius:4px">index.html</code> en tu repo de GitHub<br>
+            4. GitHub Pages lo publica solo ✓
+          </p>
+        </div>
+        <button class="publish-btn" onclick="downloadHTML()">⬇️ Descargar index.html</button>
+        <p class="publish-note">El archivo incluye todas las imágenes y textos editados.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════════ -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo-nav"><span class="s">S</span><span class="az">AZ</span><span class="pub">Publicidad</span></div>
+    <div class="nav-links">
+      <a href="#agencia">La Agencia</a><a href="#servicios">Servicios</a>
+      <a href="#clientes">Clientes</a><a href="#contacto">Contacto</a>
+    </div>
+    <a href="#contacto" class="nav-cta">Hablemos</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <img id="hero-bg-img" src="" style="display:none">
+  <div class="hero-visual">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1440" height="900" fill="#0f0f0f"/>
+      <circle cx="900" cy="200" r="400" fill="none" stroke="#E91E8C" stroke-width="1" opacity=".3"/>
+      <circle cx="900" cy="200" r="280" fill="none" stroke="#E91E8C" stroke-width="1" opacity=".2"/>
+      <circle cx="900" cy="200" r="160" fill="#E91E8C" opacity=".06"/>
+      <line x1="600" y1="0" x2="1440" y2="600" stroke="#E91E8C" stroke-width=".5" opacity=".15"/>
+      <rect x="1100" y="500" width="200" height="200" rx="40" fill="#E91E8C" opacity=".05" transform="rotate(20 1200 600)"/>
+    </svg>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-tag">Agencia de Publicidad & Comunicación Integral</div>
+      <h1 id="site-h1">Las ideas<br><span id="site-h2">transforman</span><br><span id="site-h3">marcas.</span></h1>
+      <p id="site-hsub">Desarrollamos estrategias de comunicación y publicidad para marcas que buscan posicionarse, crecer y generar impacto real.</p>
+      <div class="hero-btns">
+        <a href="#servicios" class="btn-primary" id="site-hbtn1">Ver servicios</a>
+        <a href="#contacto" class="btn-ghost" id="site-hbtn2">Contactanos</a>
+      </div>
+    </div>
+    <div class="hero-cards">
+      <div class="hc acc"><div class="n">+15</div><div class="l">Años de experiencia en publicidad</div></div>
+      <div class="hc"><div class="n pk">360°</div><div class="l">Campañas integrales en todos los medios</div></div>
+      <div class="hc"><div class="n pk">12+</div><div class="l">Marcas líderes que confían en nosotros</div></div>
+      <div class="hc"><div class="n" style="font-size:15px;font-weight:600;line-height:1.5">TV · Radio<br>Digital · OOH</div><div class="l" style="margin-top:6px">Todos los medios, una sola agencia</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENCIA -->
+<section id="agencia">
+  <div class="container">
+    <div class="agencia-grid">
+      <div class="ag-visual">
+        <div class="ag-cards">
+          <div class="ag-card dark"><div class="n" id="site-s1n">+15</div><div class="l" id="site-s1l">Años en el mercado</div></div>
+          <div class="ag-card pink"><div class="n">360°</div><div class="l" style="color:rgba(255,255,255,.75)">Cobertura de medios</div></div>
+          <div class="ag-card dark"><div class="n" id="site-s2n">100%</div><div class="l" id="site-s2l">Orientados a resultados</div></div>
+          <div class="ag-card dark"><div class="n" style="font-size:20px;font-weight:700;color:#fff;line-height:1.3">TV · Radio<br>Digital</div><div class="l">Todos los medios</div></div>
+        </div>
+        <div class="ag-quote">
+          <div class="ql">Nuestra filosofía</div>
+          <div class="qt">"Las ideas transforman marcas. Nosotros transformamos ideas en resultados."</div>
+        </div>
+      </div>
+      <div>
+        <div class="tag">La Agencia</div>
+        <h2 class="section-title" id="site-agtit">Estrategia, creatividad y resultados reales.</h2>
+        <p class="section-sub" id="site-agdesc">En SAZ Publicidad desarrollamos estrategias de comunicación y publicidad para marcas que buscan posicionarse, crecer y generar impacto real. Más de 15 años trabajando junto a importantes medios y clientes de distintos rubros.</p>
+        <div class="stats-row">
+          <div class="stat"><div class="n">15+</div><div class="l">Años en el mercado</div></div>
+          <div class="stat"><div class="n">100%</div><div class="l">Resultados</div></div>
+          <div class="stat"><div class="n">360°</div><div class="l">Medios</div></div>
+        </div>
+        <div>
+          <div class="val-item"><div class="dot"></div><div class="val-text">Creatividad que conecta con tu audiencia</div></div>
+          <div class="val-item"><div class="dot"></div><div class="val-text">Estrategia orientada a resultados concretos</div></div>
+          <div class="val-item"><div class="dot"></div><div class="val-text">Diseño y comunicación coherente de marca</div></div>
+          <div class="val-item"><div class="dot"></div><div class="val-text">Presencia en todos los medios relevantes</div></div>
+          <div class="val-item"><div class="dot"></div><div class="val-text">Resultados medibles y transparentes</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section class="servicios" id="servicios">
+  <div class="container">
+    <div class="serv-header">
+      <div><div class="tag">Medios & Servicios</div><h2 class="section-title">Campañas publicitarias 360°</h2></div>
+      <p class="section-sub" style="max-width:280px;text-align:right">Cubrimos todos los canales para que tu marca esté donde está tu audiencia.</p>
+    </div>
+    <div class="serv-grid" id="serv-grid"></div>
+  </div>
+</section>
+
+<!-- DIFERENCIAL -->
+<section class="diferencial" id="diferencial">
+  <div class="dif-bg"><svg viewBox="0 0 1100 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><circle cx="800" cy="300" r="350" fill="#E91E8C" opacity=".3"/><circle cx="200" cy="150" r="200" fill="#E91E8C" opacity=".2"/></svg></div>
+  <div class="container">
+    <div class="dif-layout">
+      <div>
+        <div class="tag">Nuestro Diferencial</div>
+        <h2 class="section-title">Trabajamos de manera cercana con cada cliente.</h2>
+        <p class="section-sub">Acompañamos cada proyecto desde la planificación hasta su ejecución con los medios más importantes.</p>
+        <div style="margin-top:40px">
+          <div class="dif-item"><span class="dif-num">01</span><div class="dif-info"><h4>Atención personalizada</h4><p>Cada cliente tiene su equipo dedicado y seguimiento constante.</p></div></div>
+          <div class="dif-item"><span class="dif-num">02</span><div class="dif-info"><h4>Estrategias adaptadas a cada marca</h4><p>No hay soluciones genéricas: analizamos tu negocio y tu audiencia.</p></div></div>
+          <div class="dif-item"><span class="dif-num">03</span><div class="dif-info"><h4>Gestión integral de campañas</h4><p>Desde la creatividad hasta la pauta, todo bajo un mismo techo.</p></div></div>
+          <div class="dif-item"><span class="dif-num">04</span><div class="dif-info"><h4>Relación directa con medios líderes</h4><p>Acceso preferencial a los mejores espacios publicitarios del país.</p></div></div>
+          <div class="dif-item"><span class="dif-num">05</span><div class="dif-info"><h4>Amplia experiencia comercial</h4><p>Más de 15 años respaldan cada estrategia que desarrollamos.</p></div></div>
+        </div>
+      </div>
+      <div class="dif-chart">
+        <svg viewBox="0 0 460 420" xmlns="http://www.w3.org/2000/svg">
+          <rect width="460" height="420" rx="20" fill="#111"/>
+          <line x1="40" y1="380" x2="420" y2="380" stroke="#222" stroke-width="1"/>
+          <line x1="40" y1="320" x2="420" y2="320" stroke="#1a1a1a" stroke-width=".5"/>
+          <line x1="40" y1="260" x2="420" y2="260" stroke="#1a1a1a" stroke-width=".5"/>
+          <line x1="40" y1="200" x2="420" y2="200" stroke="#1a1a1a" stroke-width=".5"/>
+          <line x1="40" y1="140" x2="420" y2="140" stroke="#1a1a1a" stroke-width=".5"/>
+          <rect x="50" y="300" width="46" height="80" rx="6" fill="#E91E8C" opacity=".2"/>
+          <rect x="115" y="260" width="46" height="120" rx="6" fill="#E91E8C" opacity=".3"/>
+          <rect x="180" y="210" width="46" height="170" rx="6" fill="#E91E8C" opacity=".45"/>
+          <rect x="245" y="160" width="46" height="220" rx="6" fill="#E91E8C" opacity=".6"/>
+          <rect x="310" y="100" width="46" height="280" rx="6" fill="#E91E8C" opacity=".8"/>
+          <rect x="375" y="55" width="46" height="325" rx="6" fill="#E91E8C"/>
+          <polyline points="73,290 138,250 203,200 268,150 333,90 398,45" fill="none" stroke="#fff" stroke-width="1.5" opacity=".2" stroke-dasharray="5 4"/>
+          <text x="230" y="32" text-anchor="middle" fill="white" font-size="12" font-weight="600" font-family="Inter,sans-serif" opacity=".7">Crecimiento de marca</text>
+          <rect x="310" y="38" width="90" height="22" rx="11" fill="#E91E8C"/>
+          <text x="355" y="53" text-anchor="middle" fill="white" font-size="10" font-weight="600" font-family="Inter,sans-serif">↑ +340%</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLIENTES -->
+<section id="clientes">
+  <div class="container">
+    <div class="clientes-top">
+      <div><div class="tag">Clientes</div><h2 class="section-title">Marcas que confían<br>en nosotros.</h2></div>
+      <p style="font-size:15px;color:#aaa;max-width:260px;text-align:right;line-height:1.6">Empresas líderes de distintos rubros a nivel nacional.</p>
+    </div>
+    <div class="logos-grid" id="logos-grid"></div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section class="contacto" id="contacto">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:8px"><div class="tag">Contacto</div></div>
+    <h2 class="section-title" style="text-align:center">¿Hablamos de tu marca?</h2>
+    <div class="contacto-grid">
+      <div>
+        <p style="font-size:16px;color:#666;line-height:1.7;margin-bottom:28px">Estamos listos para acompañarte desde la planificación hasta la ejecución de tu campaña. Contactanos y te respondemos a la brevedad.</p>
+        <div class="contact-info">
+          <div class="contact-item"><div class="ci-icon">✉️</div><a id="site-ctemail" href="mailto:comercial.sazpublicidad@gmail.com">comercial.sazpublicidad@gmail.com</a></div>
+          <div class="contact-item"><div class="ci-icon">📞</div><a id="site-cttel" href="tel:+5491163541585">+54 9 11.6354.1585</a></div>
+          <div class="contact-item"><div class="ci-icon">🌐</div><a id="site-ctweb" href="https://www.sazpublicidad.com.ar" target="_blank">www.sazpublicidad.com.ar</a></div>
+        </div>
+        <div class="directora-box" style="margin-top:24px">
+          <div class="dir-img">
+            <img id="sole-photo" src="" alt="Soledad Azcurrain" style="display:none">
+            <span id="sole-placeholder" style="font-size:28px">👩‍💼</span>
+          </div>
+          <div class="dir-info">
+            <div class="role">Directora</div>
+            <div class="name" id="site-ctnombre">Soledad Azcurrain</div>
+            <p style="font-size:12px;color:#888;margin-top:6px;line-height:1.5">Especialista en comunicación con más de 15 años de trayectoria.</p>
+          </div>
+        </div>
+      </div>
+      <div class="cta-box">
+        <div class="cta-img">
+          <svg viewBox="0 0 500 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <rect width="500" height="180" fill="#111"/>
+            <circle cx="400" cy="90" r="120" fill="#E91E8C" opacity=".08"/>
+            <text x="250" y="100" text-anchor="middle" font-size="40" font-weight="700" fill="white" font-family="Inter,sans-serif" opacity=".05">SAZ PUBLICIDAD</text>
+            <text x="250" y="125" text-anchor="middle" font-size="11" fill="#E91E8C" font-family="Inter,sans-serif" opacity=".4" letter-spacing="2">AGENCIA DE PUBLICIDAD & COMUNICACIÓN INTEGRAL</text>
+          </svg>
+        </div>
+        <div class="cta-content">
+          <h3>¿Listo para hacer crecer tu marca?</h3>
+          <p>Contanos tu proyecto y desarrollamos la estrategia ideal para vos. Respuesta rápida garantizada.</p>
+          <a id="site-wa" href="https://wa.me/5491163541585?text=Hola%20Soledad!" target="_blank" class="cta-wa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Escribinos por WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><p>© 2025 <strong>SAZ Publicidad</strong> — Agencia de Publicidad & Comunicación Integral</p></footer>
+
+<script>
+// ── DATA ──
+const D = {
+  h1:'Las ideas', h2:'transforman', h3:'marcas.',
+  hsub:'Desarrollamos estrategias de comunicación y publicidad para marcas que buscan posicionarse, crecer y generar impacto real.',
+  hbtn1:'Ver servicios', hbtn2:'Contactanos',
+  agtit:'Estrategia, creatividad y resultados reales.',
+  agdesc:'En SAZ Publicidad desarrollamos estrategias de comunicación y publicidad para marcas que buscan posicionarse, crecer y generar impacto real. Más de 15 años trabajando junto a importantes medios y clientes de distintos rubros.',
+  s1n:'+15', s1l:'Años en el mercado', s2n:'100%', s2l:'Orientados a resultados',
+  ctnombre:'Soledad Azcurrain', ctemail:'comercial.sazpublicidad@gmail.com',
+  cttel:'+54 9 11.6354.1585', ctweb:'www.sazpublicidad.com.ar',
+  imgs:{}
+};
+
+const servData = [
+  {name:'TV Abierta y Cable', desc:'Presencia en los canales más vistos del país con planificación estratégica de pauta.'},
+  {name:'Radio AM & FM', desc:'Campañas en las radios líderes con alto alcance y segmentación geográfica.'},
+  {name:'Streaming', desc:'Acceso a plataformas de contenido digital con audiencias en constante crecimiento.'},
+  {name:'Medios Digitales', desc:'Estrategias en redes sociales, display, SEO/SEM y todo el ecosistema digital.'},
+  {name:'Vía Pública', desc:'Carteles, pantallas LED y espacios de alto impacto en zonas estratégicas.'},
+  {name:'Influencers & Celebrities', desc:'Conexión con figuras de alto impacto para amplificar el mensaje de tu marca.'},
+  {name:'Contenido para Redes', desc:'Creación y gestión de contenido estratégico para todas las plataformas sociales.'},
+  {name:'Eventos & Acciones Especiales', desc:'Activaciones de marca, lanzamientos y experiencias de alto impacto.'},
+  {name:'Gráfica & Diseño', desc:'Producción gráfica para medios impresos y digitales con identidad de marca.'},
+];
+const servColors = ['#1a1a2e','#1a0a2e','#0a1628','#0d0d1a','#0a0a14','#1a0a1a','#0d0d1a','#0a0a0a','#0d0d0d'];
+const clientData = ['PEABODY','COTO','Optium','JANOME','KIOSHI','GRUPO SOLANAS','Chevallier','ONFIT','PASEO LA PLAZA','TEATRO METROPOLITAN','AKEMUSIC','OPTITECH'];
+const clientColors = ['#1a6fad','#c00','#5a9e3a','#e02060','#222','#8a7040','#222','#444','#222','#555','#7b3fa0','#e02060'];
+
+// ── BUILD ──
+function buildServGrid(){
+  const g = document.getElementById('serv-grid');
+  g.innerHTML = servData.map((s,i)=>`
+    <div class="serv-card">
+      <div class="serv-img" style="background:${servColors[i]};display:flex;align-items:center;justify-content:center">
+        ${D.imgs['serv_'+i] ? `<img src="${D.imgs['serv_'+i]}" style="width:100%;height:100%;object-fit:cover">` : `<span style="font-size:32px">${['📺','🎙️','📡','💻','🏙️','⭐','📲','🎪','✏️'][i]}</span>`}
+      </div>
+      <div class="serv-body"><h3>${s.name}</h3><p id="sdesc-${i}">${s.desc}</p></div>
+    </div>`).join('');
+}
+
+function buildLogos(){
+  document.getElementById('logos-grid').innerHTML = clientData.map((c,i)=>
+    `<div class="logo-cell"><span style="color:${clientColors[i]};font-size:13px;font-weight:800">${c}</span></div>`
+  ).join('');
+}
+
+function buildAdminServs(){
+  document.getElementById('serv-admin').innerHTML = servData.map((s,i)=>`
+    <div class="serv-row"><span class="snum">${String(i+1).padStart(2,'0')}</span>
+      <input value="${s.desc}" placeholder="${s.name}" oninput="servData[${i}].desc=this.value;document.getElementById('sdesc-${i}').textContent=this.value"></div>`
+  ).join('');
+}
+
+function buildAdminClients(){
+  document.getElementById('client-admin').innerHTML = clientData.map((c,i)=>
+    `<input value="${c}" oninput="clientData[${i}]=this.value;buildLogos()">`
+  ).join('');
+}
+
+function fillAdminFields(){
+  ['h1','h2','h3','hsub','hbtn1','hbtn2','agtit','agdesc','s1n','s1l','s2n','s2l','ctnombre','ctemail','cttel','ctweb'].forEach(k=>{
+    const el = document.getElementById('a-'+k);
+    if(el) el.value = D[k];
+  });
+}
+
+// ── LIVE UPDATE ──
+function liveUpdate(){
+  const map = {
+    'h1':'site-h1','h2':'site-h2','h3':'site-h3','hsub':'site-hsub',
+    'hbtn1':'site-hbtn1','hbtn2':'site-hbtn2',
+    'agtit':'site-agtit','agdesc':'site-agdesc',
+    's1n':'site-s1n','s1l':'site-s1l','s2n':'site-s2n','s2l':'site-s2l',
+    'ctnombre':'site-ctnombre','ctemail':'site-ctemail','cttel':'site-cttel','ctweb':'site-ctweb'
+  };
+  Object.entries(map).forEach(([k,id])=>{
+    const inp = document.getElementById('a-'+k);
+    const out = document.getElementById(id);
+    if(inp && out){ D[k]=inp.value; out.textContent=inp.value; }
+  });
+  // email/tel links
+  const em = document.getElementById('site-ctemail');
+  if(em) em.href = 'mailto:'+D.ctemail;
+  const tl = document.getElementById('site-cttel');
+  if(tl) tl.href = 'tel:'+D.cttel.replace(/[^0-9+]/g,'');
+  const wb = document.getElementById('site-ctweb');
+  if(wb) wb.href = 'https://'+D.ctweb.replace(/^https?:\/\//,'');
+  const wa = document.getElementById('site-wa');
+  if(wa) wa.href = 'https://wa.me/'+D.cttel.replace(/[^0-9]/g,'');
+}
+
+// ── IMAGES ──
+function loadImg(input, siteImgId, dataKey){
+  const file = input.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    D.imgs[dataKey] = e.target.result;
+    // show preview in admin
+    const prev = document.getElementById('prev-'+dataKey);
+    if(prev){ prev.src = e.target.result; prev.style.display='block'; }
+    // update site
+    if(siteImgId){
+      const el = document.getElementById(siteImgId);
+      if(el){ el.src = e.target.result; el.style.display='block'; }
+    }
+    // special: sole photo
+    if(dataKey==='a-soleimg'){
+      const sp = document.getElementById('sole-photo');
+      const ph = document.getElementById('sole-placeholder');
+      if(sp){ sp.src=e.target.result; sp.style.display='block'; }
+      if(ph) ph.style.display='none';
+    }
+    // special: hero bg
+    if(dataKey==='a-herobg'){
+      const hb = document.getElementById('hero-bg-img');
+      if(hb){ hb.src=e.target.result; hb.style.display='block'; }
+    }
+  };
+  r.readAsDataURL(file);
+}
+
+// ── ADMIN PANEL ──
+function toggleAdmin(){
+  const p = document.getElementById('admin-panel');
+  if(p.classList.contains('open')){
+    p.classList.remove('open');
+  } else {
+    const pwd = prompt('🔐 Contraseña para editar el sitio:');
+    if(pwd === 'saz2025') p.classList.add('open');
+    else if(pwd !== null) alert('Contraseña incorrecta.');
+  }
+}
+function panelOutside(e){
+  if(e.target===document.getElementById('admin-panel')) toggleAdmin();
+}
+function switchTab(id, el){
+  document.querySelectorAll('.apanel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── DOWNLOAD ──
+function downloadHTML(){
+  const html = document.documentElement.outerHTML;
+  const blob = new Blob([html],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  a.click();
+  const btn = document.querySelector('.publish-btn');
+  btn.textContent = '✓ Descargado — subilo a GitHub!';
+  setTimeout(()=>btn.textContent='⬇️ Descargar index.html',3000);
+}
+
+// ── SMOOTH SCROLL ──
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t) t.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+// ── INIT ──
+buildServGrid();
+buildLogos();
+buildAdminServs();
+buildAdminClients();
+fillAdminFields();
+</script>
+</body>
+</html>
